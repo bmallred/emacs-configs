@@ -67,7 +67,7 @@ place things end up in when you copy with Ctrl+C)."
 	(x-select-enable-primary t))
     (yank)))
 
-(global-set-key (kbd "S-<insert>") 'primary-selection-yank)
+(global-set-key (kbd "S-<insert>") 'elmord-primary-selection-yank)
 
 ;;;;; Insert current date.
 
@@ -183,6 +183,9 @@ With a prefix N, just calls (`kill-line' -N)."
 (global-set-key "\C-v" 'universal-argument)
 (define-key universal-argument-map "\C-u" nil)
 (define-key universal-argument-map "\C-v" 'universal-argument-more)
+
+;;;;; Other edit commands.
+(global-set-key (kbd "C-M-<backspace>") 'backward-kill-sexp)
 
 ;;;; Appearance and stuff.
 
