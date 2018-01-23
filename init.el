@@ -187,12 +187,18 @@ With a prefix N, just calls (`kill-line' -N)."
 ;;;;; Other edit commands.
 (global-set-key (kbd "C-M-<backspace>") 'backward-kill-sexp)
 
+
+(global-set-key (kbd "M-p") 'previous-error)
+(global-set-key (kbd "M-n") 'next-error)
+
+
 ;;;; Appearance and stuff.
 
 (add-to-list 'default-frame-alist '(foreground-color . "white"))
 (add-to-list 'default-frame-alist '(background-color . "black"))
 (tool-bar-mode 0)
 (menu-bar-mode 0)
+(blink-cursor-mode 0)
 
 (setq history-length 500)
 (savehist-mode 1)
@@ -288,6 +294,8 @@ the first time it is called, or if a prefix argument is used."
 
 (global-set-key (kbd "C-z C-z") 'elmord-compile-prompt-only-once)
 
+(setq compilation-scroll-output t)
+(setq compilation-ask-about-save nil)
 
 ;;;;; Scheme.
 
@@ -658,13 +666,12 @@ the first time it is called, or if a prefix argument is used."
 
 
 ;;;; Org mode.
-(require 'org)
 (setq org-pretty-entities t)
 (setq  org-entities-user
        '(("top" "\\top" t "⊤" "\\top" "\\top" "⊤")
          ("bot" "\\bot" t "⊥" "\\bot" "\\bot" "⊥")))
 
-(setq org-default-notes-file (concat org-directory "/notes.org"))
+(setq org-default-notes-file "~/org/notes.org")
 (define-key global-map "\C-cc" 'org-capture)
 
 (setq org-capture-templates

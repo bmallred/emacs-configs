@@ -378,6 +378,7 @@ only present EXWM buffers as options."
         ("Firefox-esr" . 0)
         ("skypeforlinux" . 9)
         ("Chromium-browser" . 9)
+        ("Chromium" . 9)
         ("Evolution" . 8)
         ("Icedove" . 8)
         ("Telegram" . 7)
