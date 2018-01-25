@@ -681,6 +681,18 @@ the first time it is called, or if a prefix argument is used."
         ))
 
 
+;;;; Utilities.
+
+(defun elmord-decode-event (event)
+  "Example: (elmord-decode-event (kbd \"s-a\"))"
+  (if (or (vectorp event) (stringp event))
+      (map 'vector 'elmord-decode-event event)
+    (let ((modifiers (event-modifiers event))
+          (base (event-basic-type event)))
+      (cons modifiers (if (characterp base)
+                          (string base)
+                        base)))))
+
 ;;;; Other config files.
 
 (load-file "~/.emacs.d/init-exwm.el")
