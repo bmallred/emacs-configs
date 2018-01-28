@@ -36,7 +36,7 @@
       (concat class ": " (match-string 1 title)))
      ((member class '("Telegram" "TelegramDesktop"))
       (if (equal title "") "Telegram" title))
-     ((member class '("Xfce4-terminal"))
+     ((member class '("Xfce4-terminal" "X-terminal-emulator"))
       (concat "Term" ": " title))
      ((equal class "skypeforlinux") "Skype")
      (t (concat class ": " title)))))
@@ -188,7 +188,7 @@ only present EXWM buffers as options."
 (elmord-exwm-shortcut (kbd "s-<prior>") "backlight-brightness +")
 (elmord-exwm-shortcut (kbd "s-<next>") "backlight-brightness -")
 
-(elmord-exwm-shortcut (kbd "s-t") "xfce4-terminal")
+(elmord-exwm-shortcut (kbd "s-t") "x-terminal-emulator")
 (elmord-exwm-shortcut (kbd "s-L") "gnome-screensaver-command -l")
 
 
@@ -381,6 +381,7 @@ only present EXWM buffers as options."
         ("Chromium" . 9)
         ("Evolution" . 8)
         ("Icedove" . 8)
+        ("Thunderbird" . 8)
         ("Telegram" . 7)
         ("TelegramDesktop" . 7)
         ("Pidgin" . 6)))
