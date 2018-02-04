@@ -2,11 +2,16 @@
 
 ;;;; Packages.
 (require 'package)
-(add-to-list 'package-archives
-  ;; '("melpa-stable" . "http://melpa-stable.org/packages/")
-  '("melpa-unstable" . "http://melpa.org/packages/"))
+;; Make sure to use HTTPS.
+(setq package-archives
+      ;; '("melpa-stable" . "http://melpa-stable.org/packages/")
+      '(("gnu" . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
+;; Check TLS (https://glyph.twistedmatrix.com/2015/11/editor-malware.html)
+(setq tls-checktrust t)
+(setq gnutls-verify-error t)
 
 ;;;; Basic configs.
 (require 'cl-lib)
@@ -187,9 +192,14 @@ With a prefix N, just calls (`kill-line' -N)."
 ;;;;; Other edit commands.
 (global-set-key (kbd "C-M-<backspace>") 'backward-kill-sexp)
 
-
 (global-set-key (kbd "M-p") 'previous-error)
 (global-set-key (kbd "M-n") 'next-error)
+
+(defun elmord-backward-kill-char ()
+  (interactive)
+  (backward-delete-char-untabify 1 t))
+
+(global-set-key (kbd "S-<backspace>") 'elmord-backward-kill-char)
 
 
 ;;;; Appearance and stuff.
@@ -601,8 +611,6 @@ the first time it is called, or if a prefix argument is used."
     (insert " ")))
   
 
-
-
 ;;;; Miscellaneous.
 
 ;; Cache GPG passphrases (questionable! should use gpg-agent instead)
@@ -654,6 +662,17 @@ the first time it is called, or if a prefix argument is used."
 
 ;; Outline mode.
 (setq outline-minor-mode-prefix (kbd "C-2"))
+
+;; PDF Tools and PDF stuff.
+
+(add-to-list 'dired-guess-shell-alist-user
+             '("\\.pdf\\'" "evince"))
+
+(when (package-installed-p 'pdf-tools)
+  (require 'pdf-tools)
+  (pdf-tools-install)
+  (setq pdf-view-midnight-colors '("#ffffff" . "#000000")))
+
 
 ;;;; Input methods.
 ;; Work around buggy 'a' in Tibetan input method. This effectively

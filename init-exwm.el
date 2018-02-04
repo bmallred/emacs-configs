@@ -188,7 +188,7 @@ only present EXWM buffers as options."
 (elmord-exwm-shortcut (kbd "s-<prior>") "backlight-brightness +")
 (elmord-exwm-shortcut (kbd "s-<next>") "backlight-brightness -")
 
-(elmord-exwm-shortcut (kbd "s-t") "x-terminal-emulator")
+;;(elmord-exwm-shortcut (kbd "s-t") "x-terminal-emulator")
 (elmord-exwm-shortcut (kbd "s-L") "gnome-screensaver-command -l")
 
 
@@ -371,7 +371,17 @@ only present EXWM buffers as options."
               'elmord-exwm-after-change-function
               nil ;; append hook?
               t   ;; buffer-local?
-              )))
+              )
+    (add-hook 'kill-buffer-hook 'elmord-exwm-kill-buffer-hook)))
+
+(defun elmord-exwm-kill-buffer-hook ()
+  (let ((window (get-buffer-window (current-buffer) 'visible)))
+    (when window
+      (condition-case err
+          (delete-window window)
+        (error (unless (equal (cdr err)
+                              '("Attempt to delete minibuffer or sole ordinary window"))
+                 (signal (car err) (cdr err))))))))
 
 (setq elmord-exwm-class-workspace-alist
       '(("Firefox" . 0)
@@ -432,3 +442,27 @@ only present EXWM buffers as options."
                         t ;; local
                         ))))
 
+(defun elmord-exwm-switch-or-open-other-window (class command)
+  (let ((candidates (cl-remove-if-not
+                     (lambda (buffer)
+                              (with-current-buffer buffer
+                                (and (equal major-mode 'exwm-mode)
+                                     (equal exwm-class-name class))))
+                     (buffer-list))))
+    (if candidates
+        (progn
+          (switch-to-buffer-other-window (car candidates))
+          (exwm-workspace-move-window
+           exwm-workspace-current-index
+           (buffer-local-value 'exwm--id (car candidates)))
+          )
+      (switch-to-buffer-other-window "*scratch*")
+      (start-process "exwm-shortcut" nil "sh" "-c" command))))
+
+
+(exwm-input-set-key (kbd "s-t")
+  (lambda ()
+    (interactive)
+    (elmord-exwm-switch-or-open-other-window
+     "X-terminal-emulator" "x-terminal-emulator")))
+                      
