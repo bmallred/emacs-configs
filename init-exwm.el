@@ -36,7 +36,7 @@
       (concat class ": " (match-string 1 title)))
      ((member class '("Telegram" "TelegramDesktop"))
       (if (equal title "") "Telegram" title))
-     ((member class '("Xfce4-terminal" "X-terminal-emulator"))
+     ((elmord-exwm-terminal-p class)
       (concat "Term" ": " title))
      ((equal class "skypeforlinux") "Skype")
      (t (concat class ": " title)))))
@@ -372,7 +372,17 @@ only present EXWM buffers as options."
               nil ;; append hook?
               t   ;; buffer-local?
               )
-    (add-hook 'kill-buffer-hook 'elmord-exwm-kill-buffer-hook)))
+    (add-hook 'kill-buffer-hook 'elmord-exwm-kill-buffer-hook)
+    (when (elmord-exwm-terminal-p)
+      (add-hook 'exwm-update-title-hook 'elmord-exwm-terminal-cd))))
+
+(defun elmord-exwm-terminal-p (&optional class-name)
+  (member (or class-name exwm-class-name)
+          '("Xfce4-terminal" "X-terminal-emulator")))
+
+(defun elmord-exwm-terminal-cd ()
+  (when (string-match "\\`<\\([^>]*\\)>" exwm-title)
+    (cd (match-string 1 exwm-title))))
 
 (defun elmord-exwm-kill-buffer-hook ()
   (let ((window (get-buffer-window (current-buffer) 'visible)))
@@ -442,12 +452,12 @@ only present EXWM buffers as options."
                         t ;; local
                         ))))
 
-(defun elmord-exwm-switch-or-open-other-window (class command)
+(defun elmord-exwm-switch-or-open-other-window (selector command)
   (let ((candidates (cl-remove-if-not
                      (lambda (buffer)
                               (with-current-buffer buffer
                                 (and (equal major-mode 'exwm-mode)
-                                     (equal exwm-class-name class))))
+                                     (funcall selector))))
                      (buffer-list))))
     (if candidates
         (progn
@@ -464,5 +474,5 @@ only present EXWM buffers as options."
   (lambda ()
     (interactive)
     (elmord-exwm-switch-or-open-other-window
-     "X-terminal-emulator" "x-terminal-emulator")))
+     'elmord-exwm-terminal-p "x-terminal-emulator")))
                       
