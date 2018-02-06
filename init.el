@@ -1,4 +1,4 @@
- ;; init.el                                     -*- lexical-binding: t; -*-
+;; init.el                                     -*- lexical-binding: t; -*-
 
 ;;;; Packages.
 (require 'package)
@@ -290,6 +290,16 @@ With a prefix N, just calls (`kill-line' -N)."
 ;; Use spaces instead of tabs.
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
+
+;; Cleanup trailing whitespace.
+(add-hook 'prog-mode-hook
+  (defun elmord-prog-mode-hook ()
+    (add-hook 'before-save-hook 'whitespace-cleanup nil t)))
+
+(add-hook 'sgml-mode-hook
+  (defun elmord-sgml-mode-hook ()
+    (add-hook 'before-save-hook 'whitespace-cleanup nil t)))
+
 
 ;;;;; Compilation.
 
