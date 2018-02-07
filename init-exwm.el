@@ -323,31 +323,34 @@ only present EXWM buffers as options."
         (t ?\C-v)))
 
 (defun elmord-exwm-send-string (string)
-  (interactive "MString: ")
+  (interactive "MSend string: ")
   (let ((saved-clipboard (gui-backend-get-selection 'CLIPBOARD 'STRING))
         (paste-key (elmord-exwm-get-paste-key)))
     (gui-backend-set-selection 'CLIPBOARD string)
-    (exwm-input--fake-key paste-key)
-    (run-at-time 0.5 nil
+    (run-at-time 0.1 nil
       `(lambda ()
-         (gui-backend-set-selection 'CLIPBOARD ,saved-clipboard))))
+         (exwm-input--fake-key ,paste-key)
+         (run-at-time 0.3 nil
+           `(lambda ()
+              (gui-backend-set-selection 'CLIPBOARD ,,saved-clipboard))))))
   t)
 
-;; (defun elmord-exwm-send-character (char)
-;;   (interactive
-;;    ;; Copied from `insert-char' source.
-;;    (list (read-char-by-name "Insert character (Unicode name or hex): ")))
-;;   (elmord-exwm-send-string (string char)))
-;; (define-key exwm-mode-map (kbd "C-x 8 RET") 'elmord-exwm-send-character)
+(defun elmord-exwm-send-character (char)
+  (interactive
+   ;; Copied from `insert-char' source.
+   (list (read-char-by-name "Insert character for EXWM (Unicode name or hex): ")))
+  (elmord-exwm-send-string (string char)))
+
+(define-key exwm-mode-map (kbd "C-x 8 RET") 'elmord-exwm-send-character)
 
 ;; Much better (but with possible unknown side-effects?): allow the
 ;; buffer to be modified, and transfer any modification to the
 ;; application via clipboard.
 
-(defun elmord-exwm-after-change-function (begin end length)
-  (elmord-exwm-send-string (buffer-substring begin end))
-  (delete-region begin end)
-  (set-buffer-modified-p nil))
+;; (defun elmord-exwm-after-change-function (begin end length)
+;;   (elmord-exwm-send-string (buffer-substring begin end))
+;;   (delete-region begin end)
+;;   (set-buffer-modified-p nil))
 
 
 (defun elmord-remove-from-tree (item tree)
@@ -475,4 +478,3 @@ only present EXWM buffers as options."
     (interactive)
     (elmord-exwm-switch-or-open-other-window
      'elmord-exwm-terminal-p "x-terminal-emulator")))
-                      
