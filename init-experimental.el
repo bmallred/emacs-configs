@@ -36,7 +36,7 @@
           (elmord-read-command-output "pdftitle" fullname))
     (setq elmord-evince-sha1
           (car (split-string (elmord-read-command-output "sha1sum" fullname))))))
-          
+
 
 (defun elmord-read-command-output (command &rest args)
     (string-remove-suffix
@@ -88,4 +88,59 @@
       (let ((entry (org-find-entry-with-id (concat "sha1-" elmord-evince-sha1))))
         (when entry
           (org-entry-put entry "FILENAME" filename))))))
-  
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defmacro -> (&rest forms)
+  (if (null (cdr forms))
+      (car forms)
+    (let ((first (car forms))
+          (second (cadr forms))
+          (rest (cddr forms)))
+      `(-> (,(car second) ,first ,@(cdr second))
+           ,@rest))))
+
+(defun elmord-org-export-blog-post ()
+  (interactive)
+  (-> (elmord-org-export-blog-post-initial)
+      (elmord-org-export-blog-post-fixup)))
+
+(defun elmord-org-export-blog-post-initial ()
+  (let ((org-html-toplevel-hlevel 3)
+        (org-export-with-toc nil)
+        (org-export-with-section-numbers nil))
+      (org-html-export-as-html
+       nil ;; async
+       nil ;; subtree-p
+       nil ;; visible-only
+       t   ;; body-only
+       nil ;; ext-plist
+       )
+      ))
+
+(defun elmord-replace-all (regex replacement)
+  (beginning-of-buffer)
+  (while (re-search-forward regex nil t)
+    (replace-match replacement)))
+
+(defun elmord-org-export-blog-post-fixup (buffer)
+  (with-current-buffer buffer
+    (dolist (regex '("outline-[^\"]*" "text-[^\"]*"))
+      (elmord-remove-tags-with-id regex))
+    (dolist (replacement '(("<\\(h[1-6]\\) id=\"sec-[^\"]*\"" . "<\\1")
+                           ("<p>\n" . "<p>")
+                           ("</p>" . "")
+                           ("\n\n\n*" . "\n\n")))
+      (elmord-replace-all (car replacement) (cdr replacement)))
+    ))
+
+(defun elmord-remove-tags-with-id (regex)
+  (beginning-of-buffer)
+  (while (re-search-forward (concat "<[^>]* id=\"" regex "\"") nil t)
+    (search-backward "<")
+    (save-excursion
+      (sgml-skip-tag-forward 1)
+      (backward-kill-sexp))
+    (kill-sexp)))
