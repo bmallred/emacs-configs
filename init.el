@@ -51,8 +51,8 @@
       (when (not (or (buffer-modified-p buffer)
                      (equal (buffer-name buffer) "*scratch*")
                      (elmord-exwm-buffer-p buffer)))
-	(push (buffer-name buffer) killed)
-	(kill-buffer buffer)))
+        (push (buffer-name buffer) killed)
+        (kill-buffer buffer)))
     (message "%d buffers killed: %s" (length killed) killed)))
 
 (defun elmord-exwm-buffer-p (buffer)
@@ -69,7 +69,7 @@ the mouse in a graphical environment), as opposed to the clipboard (the
 place things end up in when you copy with Ctrl+C)."
   (interactive)
   (let ((x-select-enable-clipboard nil)
-	(x-select-enable-primary t))
+        (x-select-enable-primary t))
     (yank)))
 
 (global-set-key (kbd "S-<insert>") 'elmord-primary-selection-yank)
@@ -94,8 +94,8 @@ place things end up in when you copy with Ctrl+C)."
 
 ;; Keep track of which buffers are temporary.
 (add-hook 'temp-buffer-window-setup-hook
-	  (defun elmord-mark-buffer-as-temporary ()
-	    (setq-local elmord-buffer-temporary-p t)))
+          (defun elmord-mark-buffer-as-temporary ()
+            (setq-local elmord-buffer-temporary-p t)))
 
 (defvar elmord-temporary-buffer-names
   '("*Messages*" "*Completions*" "*Occur*")
@@ -106,7 +106,7 @@ the value of their value of `buffer-temporary-p'.")
   "Returns whether WINDOW is associated with a temporary buffer."
   (with-current-buffer (window-buffer window)
     (or (and (boundp 'elmord-buffer-temporary-p) elmord-buffer-temporary-p)
-	(member (buffer-name) elmord-temporary-buffer-names))))
+        (member (buffer-name) elmord-temporary-buffer-names))))
 
 (defvar elmord-quit-temp-windows-previous-configuration nil)
 
@@ -121,10 +121,10 @@ the last call. Returns t if a window was quitted/deleted, nil otherwise."
     (let ((winconf (current-window-configuration)))
       (cond ((or (elmord-quit-temp-windows)
                  (elmord-delete-last-window))
-	     (setq elmord-quit-temp-windows-previous-configuration winconf)
-	     t)
-	    (t (message "No window to delete")
-	       nil)))))
+             (setq elmord-quit-temp-windows-previous-configuration winconf)
+             t)
+            (t (message "No window to delete")
+               nil)))))
 
 (defun elmord-quit-temp-windows ()
   "Quit all temporary buffers in the current frame.
@@ -133,8 +133,8 @@ the last call. Returns t if a window was quitted/deleted, nil otherwise."
   (let ((some-quitted-p nil))
     (dolist (window (window-list))
       (when (elmord-window-temporary-p window)
-	(quit-window nil window)
-	(setq some-quitted-p t)))
+        (quit-window nil window)
+        (setq some-quitted-p t)))
     some-quitted-p))
 
 (defun elmord-delete-last-window ()
@@ -143,7 +143,7 @@ the last call. Returns t if a window was quitted/deleted, nil otherwise."
 deleted, nil otherwise."
   (interactive)
   (let* ((windows (remove (get-buffer-window) (window-list)))
-	 (victim (car (last windows))))
+         (victim (car (last windows))))
     (when victim
       (delete-window victim)
       t)))
@@ -169,17 +169,17 @@ With a prefix N, just calls (`kill-line' -N)."
   (if prefix
       (kill-line (- prefix))
     (if (bolp)
-	;; What to do if we are at the beginning of line?
-	;; Currently, delete the previous newline, like Vim.
-	(backward-delete-char 1 t)
+        ;; What to do if we are at the beginning of line?
+        ;; Currently, delete the previous newline, like Vim.
+        (backward-delete-char 1 t)
       (if elmord-backward-kill-line-preserve-indentation
-	  (elmord-backward-kill-line-preserving-indentation)
-	(kill-line 0)))))
+          (elmord-backward-kill-line-preserving-indentation)
+        (kill-line 0)))))
 
 (defun elmord-backward-kill-line-preserving-indentation ()
   (let ((indentation (save-excursion (back-to-indentation) (point))))
     (if (<= (point) indentation)
-	(kill-line 0)
+        (kill-line 0)
       (kill-region (point) indentation))))
 
 (global-set-key "\C-u" 'elmord-backward-kill-line)
@@ -341,7 +341,7 @@ the first time it is called, or if a prefix argument is used."
      (label . 2))))
 
 (c-add-style "elmord" elmord-c-style)
-(setq c-default-style "elmord")    
+(setq c-default-style "elmord")
 
 ;;;; Text modes.
 
@@ -351,15 +351,15 @@ the first time it is called, or if a prefix argument is used."
   "Wrap lines at word boundaries."
   nil nil nil
   (cond (word-wrap-mode ;; enable
-	 (setq word-wrap t)
-	 (set (make-local-variable 'fringe-indicator-alist)
-	      (copy-alist fringe-indicator-alist))
-	 (rplacd (assoc 'continuation fringe-indicator-alist) nil)
-	 (message "Word-Wrap mode enabled"))
-	(t ;;disable
-	 (setq word-wrap nil)
-	 (kill-local-variable 'fringe-indicator-alist)
-	 (message "Word-Wrap mode disabled"))))
+         (setq word-wrap t)
+         (set (make-local-variable 'fringe-indicator-alist)
+              (copy-alist fringe-indicator-alist))
+         (rplacd (assoc 'continuation fringe-indicator-alist) nil)
+         (message "Word-Wrap mode enabled"))
+        (t ;;disable
+         (setq word-wrap nil)
+         (kill-local-variable 'fringe-indicator-alist)
+         (message "Word-Wrap mode disabled"))))
 
 (add-hook 'text-mode-hook 'word-wrap-mode)
 
@@ -478,10 +478,10 @@ the first time it is called, or if a prefix argument is used."
       (progn
         (shell-mode)
         (set-process-filter  (get-buffer-process (current-buffer)) 'comint-output-filter )
-	;;(local-set-key (kbd "C-j") 'term-switch-to-shell-mode)
+        ;;(local-set-key (kbd "C-j") 'term-switch-to-shell-mode)
         (compilation-shell-minor-mode 1)
         (comint-send-input)
-	)
+        )
     (progn
       (compilation-shell-minor-mode -1)
       (font-lock-mode -1)
@@ -508,9 +508,9 @@ the first time it is called, or if a prefix argument is used."
   (when (derived-mode-p 'comint-mode)
     (let ((process (get-buffer-process (current-buffer))))
       (when process
-	(set-process-window-size process
-				 (window-height)
-				 (window-width))))))
+        (set-process-window-size process
+                                 (window-height)
+                                 (window-width))))))
 
 ;; Don't create a new window for M-x shell, just like Emacs 24
 ;; (code from Emacs 25.1 NEWS file).
@@ -575,7 +575,8 @@ the first time it is called, or if a prefix argument is used."
           (defun elmord-w3m-mode-hook ()
             (local-set-key (kbd "C-<prior>") 'w3m-previous-buffer)
             (local-set-key (kbd "C-<next>") 'w3m-next-buffer)
-            (local-set-key (kbd "C-c RET") 'w3m-view-this-url-new-session)))
+            (local-set-key (kbd "C-c RET") 'w3m-view-this-url-new-session)
+            (setq-local line-spacing 0.5)))
 
 ;; Don't use proportional fonts in Elfeed (which uses shr).
 (setq shr-use-fonts nil)
@@ -607,7 +608,7 @@ the first time it is called, or if a prefix argument is used."
                       "Tags: \n\n"))
       (beginning-of-buffer)
       (end-of-line))))
-                      
+
 
 (define-key ctl-z-map (kbd "b") 'elmord-new-blog-post)
 
@@ -619,7 +620,7 @@ the first time it is called, or if a prefix argument is used."
       (dotimes (syllable word-length)
         (insert (if (evenp syllable) "mo" "no"))))
     (insert " ")))
-  
+
 
 ;;;; Miscellaneous.
 
@@ -741,4 +742,3 @@ the first time it is called, or if a prefix argument is used."
 ;; eval: (outline-minor-mode)
 ;; eval: (outline-hide-body)
 ;; End:
-

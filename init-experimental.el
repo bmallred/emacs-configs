@@ -92,6 +92,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(require 'sgml-mode)
 
 (defmacro -> (&rest forms)
   (if (null (cdr forms))
@@ -102,15 +103,28 @@
       `(-> (,(car second) ,first ,@(cdr second))
            ,@rest))))
 
+
+(defmacro ->> (&rest forms)
+  (if (null (cdr forms))
+      (car forms)
+    (let ((first (car forms))
+          (second (cadr forms))
+          (rest (cddr forms)))
+      `(->> (,@second ,first)
+           ,@rest))))
+
 (defun elmord-org-export-blog-post ()
   (interactive)
-  (-> (elmord-org-export-blog-post-initial)
-      (elmord-org-export-blog-post-fixup)))
+  (->> (elmord-org-export-blog-post-initial)
+       (elmord-org-export-blog-post-fixup)
+       (elmord-org-export-blog-post-add-header)
+       ))
 
 (defun elmord-org-export-blog-post-initial ()
-  (let ((org-html-toplevel-hlevel 3)
-        (org-export-with-toc nil)
-        (org-export-with-section-numbers nil))
+  (save-current-buffer
+    (let ((org-html-toplevel-hlevel 3)
+          (org-export-with-toc nil)
+          (org-export-with-section-numbers nil))
       (org-html-export-as-html
        nil ;; async
        nil ;; subtree-p
@@ -118,15 +132,19 @@
        t   ;; body-only
        nil ;; ext-plist
        )
-      ))
+      )))
 
 (defun elmord-replace-all (regex replacement)
   (beginning-of-buffer)
   (while (re-search-forward regex nil t)
     (replace-match replacement)))
 
-(defun elmord-org-export-blog-post-fixup (buffer)
-  (with-current-buffer buffer
+(defun elmord-org-export-blog-post-fixup (output)
+  (with-current-buffer output
+    (html-mode)
+    (beginning-of-buffer)
+    (when (search-forward-regexp (rx (and point (1+ "\n"))) nil t)
+      (replace-match ""))
     (dolist (regex '("outline-[^\"]*" "text-[^\"]*"))
       (elmord-remove-tags-with-id regex))
     (dolist (replacement '(("<\\(h[1-6]\\) id=\"sec-[^\"]*\"" . "<\\1")
@@ -134,7 +152,8 @@
                            ("</p>" . "")
                            ("\n\n\n*" . "\n\n")))
       (elmord-replace-all (car replacement) (cdr replacement)))
-    ))
+    )
+  output)
 
 (defun elmord-remove-tags-with-id (regex)
   (beginning-of-buffer)
@@ -144,3 +163,35 @@
       (sgml-skip-tag-forward 1)
       (backward-kill-sexp))
     (kill-sexp)))
+
+
+;; Partly based on https://emacs.stackexchange.com/questions/21459/programmatically-read-and-set-buffer-wide-org-mode-property
+(defun elmord-org-get-buffer-properties ()
+  (org-element-map
+      (org-element-parse-buffer)
+      'keyword
+    (lambda (el)
+      (cond
+       ((equal (org-element-property :key el) "PROPERTY")
+        (let ((value (org-element-property :value el)))
+          (when (string-match "^\\([^[:space:]]*\\)[[:space:]]+\\(.*\\)" value)
+            (cons (match-string 1 value)
+                  (match-string 2 value)))))
+       ((member (org-element-property :key el) '("TITLE" "DATE"))
+        (cons (org-element-property :key el)
+              (org-element-property :value el)))))))
+
+
+(defun elmord-org-export-blog-post-add-header (output)
+  (let ((data (elmord-org-get-buffer-properties)))
+    (with-current-buffer output
+      (beginning-of-buffer)
+      (insert
+       (format "Title: %s\n" (cdr (assoc "TITLE" data)))
+       (format "Created: %s\n" (elmord-org-format-date (cdr (assoc "DATE" data))))
+       (format "Tags: %s\n" (cdr (assoc "Tags:" data)))))))
+
+(defun elmord-org-format-date (stamp)
+  (format-time-string
+   "%Y-%m-%d %H:%M %z"
+   (apply 'encode-time (org-parse-time-string stamp))))
