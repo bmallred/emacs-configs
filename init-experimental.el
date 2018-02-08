@@ -113,12 +113,15 @@
       `(->> (,@second ,first)
            ,@rest))))
 
+(defvar elmord-org-blog-post-id)
+
 (defun elmord-org-export-blog-post ()
   (interactive)
-  (->> (elmord-org-export-blog-post-initial)
-       (elmord-org-export-blog-post-fixup)
-       (elmord-org-export-blog-post-add-header)
-       ))
+  (let ((elmord-org-blog-post-id "footest"))
+    (->> (elmord-org-export-blog-post-initial)
+         (elmord-org-export-blog-post-fixup)
+         (elmord-org-export-blog-post-add-header)
+         )))
 
 (defun elmord-org-export-blog-post-initial ()
   (save-current-buffer
@@ -147,10 +150,19 @@
       (replace-match ""))
     (dolist (regex '("outline-[^\"]*" "text-[^\"]*"))
       (elmord-remove-tags-with-id regex))
-    (dolist (replacement '(("<\\(h[1-6]\\) id=\"sec-[^\"]*\"" . "<\\1")
+    (dolist (replacement `(("<\\(h[1-6]\\) id=\"sec-[^\"]*\"" . "<\\1")
                            ("<p>\n" . "<p>")
                            ("</p>" . "")
-                           ("\n\n\n*" . "\n\n")))
+                           ("\n\n\n*" . "\n\n")
+                           ("<a id=\"fnr\\.\\([0-9]+\\)\" name=\"fnr.\\1\" class=\"footref\" href=\"#fn.\\1\">" .
+                            ,(replace-regexp-in-string
+                              "@" elmord-org-blog-post-id
+                              "<a id=\"ref\\1-@\" name=\"ref\\1-@\" class=\"footref\" href=\"#note\\1-@\">"))
+                           ("<a id=\"fn\\.\\([0-9]+\\)\" name=\"fn.\\1\" class=\"footnum\" href=\"#fnr.\\1\">" .
+                            ,(replace-regexp-in-string
+                              "@" elmord-org-blog-post-id
+                              "<a id=\"note\\1-@\" name=\"note\\1-@\" class=\"footnum\" href=\"#ref\\1-@\">"))
+                           ))
       (elmord-replace-all (car replacement) (cdr replacement)))
     )
   output)
@@ -189,7 +201,8 @@
       (insert
        (format "Title: %s\n" (cdr (assoc "TITLE" data)))
        (format "Created: %s\n" (elmord-org-format-date (cdr (assoc "DATE" data))))
-       (format "Tags: %s\n" (cdr (assoc "Tags:" data)))))))
+       (format "Tags: %s\n" (cdr (assoc "Tags:" data)))
+       "\n"))))
 
 (defun elmord-org-format-date (stamp)
   (format-time-string
