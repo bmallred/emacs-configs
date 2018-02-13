@@ -22,7 +22,7 @@
        . ,(file-chase-links (format "/proc/%d/cwd" pid))))))
 
 (defun elmord-exwm-load-evince-info ()
-  (let* ((info (elmord-exwm-window-command-info id))
+  (let* ((info (elmord-exwm-window-command-info))
          (pid (cdr (assoc 'pid info)))
          (basename (car (last (cdr (assoc 'command-line info)))))
          (fullname (elmord-find-matching-symlink
@@ -208,3 +208,24 @@
   (format-time-string
    "%Y-%m-%d %H:%M %z"
    (apply 'encode-time (org-parse-time-string stamp))))
+
+
+
+;;;;;;;;; org-capture with EXWM buffers.
+
+(defun elmord-exwm-get-firefox-url ()
+  (exwm-input--fake-key ?\C-l)
+  (sleep-for 0.05)
+  (exwm-input--fake-key ?\C-c)
+  (sleep-for 0.05)
+  (gui-backend-get-selection 'CLIPBOARD 'STRING))
+
+(defun elmord-exwm-org-store-link ()
+  (when (and (equal major-mode 'exwm-mode)
+             (member exwm-class-name '("Firefox" "Firefox-esr")))
+    (org-store-link-props
+     :type "http"
+     :link (elmord-exwm-get-firefox-url)
+     :description exwm-title)))
+
+(add-to-list 'org-store-link-functions 'elmord-exwm-org-store-link)

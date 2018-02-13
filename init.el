@@ -670,6 +670,7 @@ the first time it is called, or if a prefix argument is used."
 (ido-mode 'buffers)
 
 (add-to-list 'Info-directory-list "/opt/guile/share/info/")
+(add-to-list 'Info-directory-list "/opt/gnutls/share/info/")
 
 ;; Outline mode.
 (setq outline-minor-mode-prefix (kbd "C-2"))
