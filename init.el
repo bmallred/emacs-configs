@@ -685,6 +685,7 @@ the first time it is called, or if a prefix argument is used."
   (pdf-tools-install)
   (setq pdf-view-midnight-colors '("#ffffff" . "#000000")))
 
+(add-hook 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode)
 
 ;;;; Input methods.
 ;; Work around buggy 'a' in Tibetan input method. This effectively
