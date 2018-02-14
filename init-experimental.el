@@ -162,6 +162,7 @@
                             ,(replace-regexp-in-string
                               "@" elmord-org-blog-post-id
                               "<a id=\"note\\1-@\" name=\"note\\1-@\" class=\"footnum\" href=\"#ref\\1-@\">"))
+                           ("<a href=\"https://\\?" . "<a href=\"?")
                            ))
       (elmord-replace-all (car replacement) (cdr replacement)))
     )
