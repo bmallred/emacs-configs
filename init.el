@@ -698,6 +698,7 @@ the first time it is called, or if a prefix argument is used."
 
 
 ;;;; Org mode.
+(require 'org)
 (setq org-pretty-entities t)
 (setq  org-entities-user
        '(("top" "\\top" t "⊤" "\\top" "\\top" "⊤")

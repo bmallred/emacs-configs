@@ -370,12 +370,8 @@ only present EXWM buffers as options."
     (setq-local mode-line-format
                 (elmord-remove-from-tree 'mode-line-position mode-line-format))
     (setq buffer-read-only nil)
-    (add-hook 'after-change-functions
-              'elmord-exwm-after-change-function
-              nil ;; append hook?
-              t   ;; buffer-local?
-              )
-    (add-hook 'kill-buffer-hook 'elmord-exwm-kill-buffer-hook)
+    (add-hook 'after-change-functions 'elmord-exwm-after-change-function nil t)
+    (add-hook 'kill-buffer-hook 'elmord-exwm-kill-buffer-hook nil t)
     (when (elmord-exwm-terminal-p)
       (add-hook 'exwm-update-title-hook 'elmord-exwm-terminal-cd))))
 
