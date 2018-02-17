@@ -474,3 +474,12 @@ only present EXWM buffers as options."
     (interactive)
     (elmord-exwm-switch-or-open-other-window
      'elmord-exwm-terminal-p "x-terminal-emulator")))
+
+(exwm-input-set-key (kbd "s-v")
+  (lambda ()
+    (interactive)
+    (elmord-exwm-switch-or-open-other-window
+     (lambda () (equal exwm-class-name "vlc"))
+     "vlc")))
+
+;; (exwm-input--update-global-prefix-keys)
