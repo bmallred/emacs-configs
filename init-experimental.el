@@ -117,7 +117,7 @@
 
 (defun elmord-org-export-blog-post ()
   (interactive)
-  (let ((elmord-org-blog-post-id "footest"))
+  (let ((elmord-org-blog-post-id (car (split-string (file-name-base) "-"))))
     (->> (elmord-org-export-blog-post-initial)
          (elmord-org-export-blog-post-fixup)
          (elmord-org-export-blog-post-add-header)
